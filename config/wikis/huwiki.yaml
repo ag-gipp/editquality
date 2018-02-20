@@ -34,3 +34,7 @@ models:
             max_features: log2
         pop_rate_true: 0.014812583163867339
         build_number: 1
+    damaging:
+        pop_rate_true: 0.01093805131
+    goodfaith:
+        pop_rate_true: 0.99221230908
