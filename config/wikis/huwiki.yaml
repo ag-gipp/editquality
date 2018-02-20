@@ -35,6 +35,12 @@ models:
         pop_rate_true: 0.014812583163867339
         build_number: 1
     damaging:
+        tuning_params:
+            max_depth: 3
+            learning_rate: 0.1
+            n_estimators: 300
         pop_rate_true: 0.01093805131
     goodfaith:
+        tuning_params:
+            learning_rate: 0.1
         pop_rate_true: 0.99221230908
