@@ -2488,26 +2488,12 @@ tawiki_tuning_reports: \
 
 ############################# Turkish Wikipedia ################################
 
-datasets/trwiki.sampled_revisions.20k_2015.json:
-	wget -qO- http://quarry.wmflabs.org/run/168286/output/0/json-lines?download=true > $@
-
-datasets/trwiki.autolabeled_revisions.20k_2015.json: \
-		datasets/trwiki.sampled_revisions.20k_2015.json
-	cat $< | \
-	./utility autolabel --host=https://tr.wikipedia.org \
-		--trusted-groups=sysop,oversight,trusted,bot,rollbacker,checkuser,abusefilter,bureaucrat \
-		--trusted-edits=1000 \
-		--revert-radius=3 \
-		--revert-window=48 \
-		--verbose > $@
-
-datasets/trwiki.human_labeled_revisions.5k_2015.json:
+datasets/trwiki.human_labeled_revisions.20k_2015.json:
 	./utility fetch_labels \
 		https://labels.wmflabs.org/campaigns/trwiki/5/ > $@
 
 datasets/trwiki.labeled_revisions.20k_2015.json: \
-		datasets/trwiki.human_labeled_revisions.5k_2015.json \
-		datasets/trwiki.autolabeled_revisions.20k_2015.json
+		datasets/trwiki.human_labeled_revisions.20k_2015.json
 	./utility merge_labels $^ > $@
 
 datasets/trwiki.labeled_revisions.w_cache.20k_2015.json: \
