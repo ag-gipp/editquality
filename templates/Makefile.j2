@@ -58,7 +58,7 @@ datasets/{{ wiki.name }}.human_labeled_revisions.{{ sample_name }}.json:
 {% if wiki.balanced_5k_set_for_review %}
 
 datasets/{{ wiki.name }}.revisions_for_review.{{ wiki.review_sample }}.json: \
-		datasets/{{ wiki.name }}.autolabeled_revisions.{{ wiki.default_sample_bigger_sample }}.review.json
+		datasets/{{ wiki.name }}.autolabeled_revisions.{{ wiki.default_sample_bigger_sample }}.review.json \
 		datasets/{{ wiki.name }}.autolabeled_revisions.{{ wiki.default_sample_bigger_sample }}.no_review.json
 	( \
 	 cat datasets/{{ wiki.name }}.autolabeled_revisions.{{ wiki.default_sample_bigger_sample }}.review.json | \
@@ -90,13 +90,12 @@ datasets/{{ wiki.name }}.labeled_revisions.{{ big_sample_name }}.json: \
 {% if wiki.models.reverted %}
 
 datasets/{{ wiki.name }}.autolabeled_revisions.w_cache.{{ wiki.default_sample }}.json: \
-		datasets/{{ wiki.name }}.autolabeled_revisions.{{ wiki.default_sample_bigger_sample }}.review.json \
-		datasets/{{ wiki.name }}.autolabeled_revisions.{{ wiki.default_sample_bigger_sample }}.no_review.json
+		datasets/{{ wiki.name }}.autolabeled_revisions.{{ wiki.default_sample_bigger_sample }}.json
 	{% if wiki.default_sample_size %}
 	shuf -n {{ wiki.default_sample_size }}
 	{%- else %}
 	cat
-	{%- endif %} $^ | \
+	{%- endif %} $< | \
 	revscoring extract \
 		editquality.feature_lists.{{ wiki.name }}.reverted \
 		--host https://{{ wiki.host }} \
