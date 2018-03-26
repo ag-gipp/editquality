@@ -1965,6 +1965,11 @@ datasets/huwiki.autolabeled_revisions.40k_2016.review.json: \
 		datasets/huwiki.autolabeled_revisions.40k_2016.json
 	cat $< | grep -E '"needs_review": (true|"True")' > $@
 
+
+datasets/huwiki.human_labeled_revisions.5k_2016.json:
+	./utility fetch_labels \
+		https://labels.wmflabs.org/campaigns/huwiki/33/ > $@
+
 datasets/huwiki.revisions_for_review.5k_2016.json: \
 		datasets/huwiki.autolabeled_revisions.40k_2016.review.json
 		datasets/huwiki.autolabeled_revisions.40k_2016.no_review.json
@@ -1975,12 +1980,28 @@ datasets/huwiki.revisions_for_review.5k_2016.json: \
 	 shuf -n 2500 \
 	) | shuf > $@
 
+datasets/huwiki.labeled_revisions.40k_2016.json: \
+		datasets/huwiki.human_labeled_revisions.5k_2016.json \
+		datasets/huwiki.autolabeled_revisions.40k_2016.no_review.json
+	./utility merge_labels $^ > $@
+
 datasets/huwiki.autolabeled_revisions.w_cache.40k_2016.json: \
 		datasets/huwiki.autolabeled_revisions.40k_2016.review.json \
 		datasets/huwiki.autolabeled_revisions.40k_2016.no_review.json
 	cat $^ | \
 	revscoring extract \
 		editquality.feature_lists.huwiki.reverted \
+		--host https://hu.wikipedia.org \
+		--extractor $(max_extractors) \
+		--verbose > $@
+
+datasets/huwiki.labeled_revisions.w_cache.40k_2016.json: \
+		datasets/huwiki.labeled_revisions.40k_2016.json
+	cat $< | \
+	revscoring extract \
+		editquality.feature_lists.huwiki.reverted \
+		editquality.feature_lists.huwiki.damaging \
+		editquality.feature_lists.huwiki.goodfaith \
 		--host https://hu.wikipedia.org \
 		--extractor $(max_extractors) \
 		--verbose > $@
@@ -2036,7 +2057,7 @@ tuning_reports/huwiki.damaging.md: \
 
 models/huwiki.damaging.gradient_boosting.model: \
 		datasets/huwiki.labeled_revisions.w_cache.40k_2016.json
-	cat $< | \
+	cat $^ | \
 	revscoring cv_train \
 		revscoring.scoring.models.GradientBoosting \
 		editquality.feature_lists.huwiki.damaging \
@@ -2050,6 +2071,8 @@ models/huwiki.damaging.gradient_boosting.model: \
 		--pop-rate "true=0.01093805131" \
 		--pop-rate "false=0.98906194869" \
 		--center --scale > $@
+	
+	revscoring model_info $@ > model_info/huwiki.damaging.md
 
 tuning_reports/huwiki.goodfaith.md: \
 		datasets/huwiki.labeled_revisions.w_cache.40k_2016.json
@@ -2068,7 +2091,7 @@ tuning_reports/huwiki.goodfaith.md: \
 
 models/huwiki.goodfaith.gradient_boosting.model: \
 		datasets/huwiki.labeled_revisions.w_cache.40k_2016.json
-	cat $< | \
+	cat $^ | \
 	revscoring cv_train \
 		revscoring.scoring.models.GradientBoosting \
 		editquality.feature_lists.huwiki.goodfaith \
@@ -2082,6 +2105,8 @@ models/huwiki.goodfaith.gradient_boosting.model: \
 		--pop-rate "true=0.99221230908" \
 		--pop-rate "false=0.007787690919999979" \
 		--center --scale > $@
+	
+	revscoring model_info $@ > model_info/huwiki.goodfaith.md
 
 huwiki_models: \
 	models/huwiki.reverted.rf.model \
