@@ -3,8 +3,10 @@ label: Hungarian Wikipedia
 host: hu.wikipedia.org
 
 samples:
-    40k_2016:
-        quarry_url: "http://quarry.wmflabs.org/run/79645/output/0/json-lines?download=true"
+  40k_2016:
+    quarry_url: "http://quarry.wmflabs.org/run/79645/output/0/json-lines?download=true"
+  5k_2016:
+    quarry_url: "https://labels.wmflabs.org/campaigns/huwiki/33/"
 
 trusted_groups:
     - sysop
@@ -24,16 +26,12 @@ balanced_5k_set_for_review: true
 default_sample: 40k_2016
 review_sample: 5k_2016
 
+merged_samples:
+    20k_2016:
+        autolabeled_revisions: "20k_2016"
+        human_labeled_revisions: "5k_2016"
+
 models:
-    reverted:
-        rf: true
-        tuning_params:
-            criterion: entropy
-            n_estimators: 320
-            min_samples_leaf: 13
-            max_features: log2
-        pop_rate_true: 0.014812583163867339
-        build_number: 1
     damaging:
         tuning_params:
             max_depth: 3
@@ -44,3 +42,4 @@ models:
         tuning_params:
             learning_rate: 0.1
         pop_rate_true: 0.99221230908
+
